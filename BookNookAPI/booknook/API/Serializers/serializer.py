@@ -2,12 +2,13 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.core.validators import validate_email
+from API.models import Profile
 
 
-class UserSerializer(serializers.ModelSerializer):
+class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = ('id', 'username', 'email')
+        model = Profile
+        fields = ('name', 'city', 'mobile')
 
 
 class LoginSerializer(serializers.Serializer):
