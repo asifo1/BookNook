@@ -10,3 +10,15 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+class Book(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=30, blank=True, null=True)
+    author = models.CharField(max_length=30, blank=True, null=True)
+    price = models.PositiveIntegerField()
+    timestamp = models.DateTimeField(auto_now_add=True, editable=False)
+    is_sold = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
