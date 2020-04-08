@@ -9,6 +9,7 @@ from .views import (
     BookDetaileView,
     DeleteBook,
     CreateBook,
+    Search,
 )
 
 urlpatterns = [
@@ -21,5 +22,6 @@ urlpatterns = [
     path('book/<int:pk>', BookDetaileView.as_view()),
     path('remove/<int:pk>', DeleteBook.as_view()),
     path('create/', CreateBook.as_view()),
+    path('search/', Search.as_view()),
 
 ]

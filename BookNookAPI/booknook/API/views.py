@@ -10,6 +10,7 @@ from API.models import Profile, Book
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import LimitOffsetPagination
+from django.db.models import Q
 from .Serializers.serializer import (
     LoginSerializer,
     SignupSerializer,
@@ -195,3 +196,21 @@ class DeleteBook(APIView):
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class Search(ListAPIView):
+    permission_classes = [AllowAny]
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    pagination_class = LimitOffsetPagination
+
+    def get_queryset(self, *args, **kwargs):
+        q = self.request.GET.get('q')
+        if q:
+            queryset = Book.objects.filter(
+                Q(name__icontains=q) |
+                Q(author__icontains=q)).distinct().order_by('-timestamp')
+        else:
+            queryset = Book.objects.all()
+
+        return queryset
