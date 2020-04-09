@@ -11,13 +11,15 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import LimitOffsetPagination
 from django.db.models import Q
+import json
 from .Serializers.serializer import (
     LoginSerializer,
     SignupSerializer,
     ProfileSerializer,
     UserSerializer,
     ProfileUpdateSerializer,
-    BookSerializer
+    BookSerializer,
+    UserValidationSerializer
 )
 
 
@@ -33,13 +35,16 @@ class Login(APIView):
         try:
             profile = Profile.objects.get(user=user)
             profile_data = ProfileSerializer(profile).data
+            is_profile = 'true'
         except:
             profile_data = "No Profile Data"
+            is_profile = 'false'
 
         return Response({
             'profile': profile_data,
             'user': UserSerializer(user).data,
             'token': token.key,
+            'is_profile': is_profile
         })
 
 
@@ -144,6 +149,7 @@ class CreateBook(APIView):
         author = seriazer.data.get('author')
         price = seriazer.data.get('price')
 
+        # for i in range(40):
         book = Book(
             user=request.user,
             name=name,
@@ -157,7 +163,7 @@ class CreateBook(APIView):
 
 class BookList(ListAPIView):
     permission_classes = [AllowAny]
-    queryset = Book.objects.all()
+    queryset = Book.objects.all().order_by('-timestamp')
     serializer_class = BookSerializer
     pagination_class = LimitOffsetPagination
 
@@ -214,3 +220,31 @@ class Search(ListAPIView):
             queryset = Book.objects.all()
 
         return queryset
+
+
+class UserValidation(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+
+        serializer = UserValidationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        token = serializer.data.get('token')
+        try:
+            token_obj = Token.objects.get(key=token)
+        except:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            profile = Profile.objects.get(user=token_obj.user)
+            profile = ProfileSerializer(profile).data
+            is_profile = "true"
+        except:
+            profile = "null"
+            is_profile = "false"
+
+        return Response({
+            "is_valid": 'true',
+            'user': UserSerializer(token_obj.user).data,
+            'is_profile': is_profile,
+            'profile': profile,
+        }, status=status.HTTP_200_OK)

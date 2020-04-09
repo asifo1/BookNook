@@ -10,6 +10,7 @@ from .views import (
     DeleteBook,
     CreateBook,
     Search,
+    UserValidation
 )
 
 urlpatterns = [
@@ -23,5 +24,6 @@ urlpatterns = [
     path('remove/<int:pk>', DeleteBook.as_view()),
     path('create/', CreateBook.as_view()),
     path('search/', Search.as_view()),
+    path('isuser/', UserValidation.as_view()),
 
 ]

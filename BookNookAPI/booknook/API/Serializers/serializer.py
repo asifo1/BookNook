@@ -8,7 +8,7 @@ from API.models import Profile, Book
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ('name', 'city', 'mobile')
+        fields = ('name', 'city', 'mobile', 'image')
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -58,8 +58,8 @@ class SignupSerializer(serializers.ModelSerializer):
         password = self.initial_data.get('password')
         the_user = User.objects.filter(email=email)
 
-        if len(password) <= 7:
-            raise serializers.ValidationError('Password length must be 8!')
+       # if len(password) <= 7:
+        #    raise serializers.ValidationError('Password length must be 8!')
 
         if the_user.count() == 0:
             return data
@@ -84,7 +84,6 @@ class BookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
         fields = ('__all__')
-        extra_kwargs = {'password': {'read_only': True}}
 
     def validate(self, data):
         name = self.initial_data.get('name')
@@ -95,3 +94,7 @@ class BookSerializer(serializers.ModelSerializer):
             return data
         else:
             raise serializers.ValidationError('Incorrect Credentials')
+
+
+class UserValidationSerializer(serializers.Serializer):
+    token = serializers.CharField()
