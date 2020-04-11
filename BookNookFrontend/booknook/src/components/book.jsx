@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   Loader,
@@ -9,22 +9,52 @@ import {
   Modal,
   Icon,
 } from "semantic-ui-react";
+import axios from "axios";
+import baseURL from "../urls/url";
 
 const Book = (props) => {
   const { id, name, author, image, is_sold, timestamp, price } = props;
+  const [seller, setSeller] = useState({
+    name: "",
+    email: "",
+    mobile: "",
+    city: "",
+    image: "",
+  });
 
-  const img = "https://react.semantic-ui.com/images/avatar/large/rachel.png";
+  const handleOnClick = () => {
+    axios({
+      method: "get",
+      url: `${baseURL}/book/${id}`,
+      headers: {
+        Authorization: `Token ${props.token}`,
+      },
+    })
+      .then((res) =>
+        setSeller({
+          name: res.data.profile.name,
+          email: res.data.user.email,
+          mobile: res.data.profile.mobile,
+          city: res.data.profile.city,
+          image: baseURL + res.data.profile.image,
+        })
+      )
+      .catch((err) => console.log(err));
+  };
+
+  const mailto = "mailto: " + seller.email;
+  const mobileto = "tel:" + seller.mobile;
 
   return (
     <div style={{ margin: "7px" }}>
       <Modal
         centered={false}
         trigger={
-          <Card>
+          <Card onClick={handleOnClick} style={{ height: "100%" }}>
             <Dimmer deactive>
               <Loader size="medium">Loading</Loader>
             </Dimmer>
-            <Image src={img} wrapped ui={false} />
+            <Image src={image} wrapped ui={false} />
             <Card.Content>
               <Card.Header>{name}</Card.Header>
               <Card.Description>{author}</Card.Description>
@@ -52,7 +82,7 @@ const Book = (props) => {
       >
         <Modal.Header>{name}</Modal.Header>
         <Modal.Content image>
-          <Image wrapped size="medium" src={img} />
+          <Image wrapped size="medium" src={image} />
           <Modal.Description>
             <Header>
               {name} | {author}
@@ -76,25 +106,25 @@ const Book = (props) => {
             </h4>
 
             <h4 style={{ cursor: "pointer" }}>
-              <Image src="/images/wireframe/square-image.png" avatar />
-              <span>Name of selller</span>
+              <Image src={seller.image} avatar />
+              <span>{seller.name}</span>
             </h4>
             <h4>
               <Icon name="mail outline" />
-              <a href="mailto: abc@example.com" style={{ color: "black" }}>
-                abc@example.com
+              <a href={mailto} style={{ color: "black" }}>
+                {seller.email}
               </a>
             </h4>
 
             <h4>
               <Icon name="phone" />
-              <a href="tel:123-456-7890" style={{ color: "black" }}>
-                123-456-7890
+              <a href={mobileto} style={{ color: "black" }}>
+                {seller.mobile}
               </a>
             </h4>
             <h4>
               <Icon name="location arrow" />
-              Location
+              {seller.city}
             </h4>
           </Modal.Description>
         </Modal.Content>

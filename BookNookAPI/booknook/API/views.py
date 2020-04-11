@@ -11,7 +11,9 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import LimitOffsetPagination
 from django.db.models import Q
+from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 import json
+import time
 from .Serializers.serializer import (
     LoginSerializer,
     SignupSerializer,
@@ -140,36 +142,40 @@ class DeleteId(APIView):
 
 class CreateBook(APIView):
     permission_classes = [IsAuthenticated]
+    parser_classes = (FormParser, MultiPartParser)
 
     def post(self, request):
-        seriazer = BookSerializer(data=request.data)
-        seriazer.is_valid(raise_exception=True)
+        serializer = BookSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-        name = seriazer.data.get('name')
-        author = seriazer.data.get('author')
-        price = seriazer.data.get('price')
+        name = serializer.data.get('name')
+        author = serializer.data.get('author')
+        price = serializer.data.get('price')
+        image = request.data.get('image')
+        print(image)
 
-        # for i in range(40):
-        book = Book(
-            user=request.user,
-            name=name,
-            author=author,
-            price=price
-        )
+        for i in range(100):
+            book = Book(
+                user=request.user,
+                name=name+str(i),
+                author=author,
+                price=price,
+                image=image
+            )
 
-        book.save()
-        return Response(BookSerializer(book).data)
+            book.save()
+        return Response(BookSerializer(book).data, status=status.HTTP_201_CREATED)
 
 
 class BookList(ListAPIView):
-    permission_classes = [AllowAny]
-    queryset = Book.objects.all().order_by('-timestamp')
+    permission_classes = [IsAuthenticated]
+    queryset = Book.objects.all().order_by('-time')
     serializer_class = BookSerializer
     pagination_class = LimitOffsetPagination
 
 
 class BookDetaileView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         pk = kwargs.get("pk")
@@ -205,7 +211,7 @@ class DeleteBook(APIView):
 
 
 class Search(ListAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     pagination_class = LimitOffsetPagination
@@ -215,9 +221,9 @@ class Search(ListAPIView):
         if q:
             queryset = Book.objects.filter(
                 Q(name__icontains=q) |
-                Q(author__icontains=q)).distinct().order_by('-timestamp')
+                Q(author__icontains=q)).distinct().order_by('-time')
         else:
-            queryset = Book.objects.all()
+            queryset = Book.objects.all().order_by('-time')
 
         return queryset
 
@@ -226,6 +232,7 @@ class UserValidation(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+        # time.sleep(3)
 
         serializer = UserValidationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

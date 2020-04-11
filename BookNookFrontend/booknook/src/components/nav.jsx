@@ -8,9 +8,11 @@ import completeprofileContext from "../context/completeprofileContext";
 import userContext from "../context/userContext";
 import baseURL from "../urls/url";
 
-const MyMenu = () => {
+const MyMenu = (props) => {
   const { auth, setAuth } = useContext(authContext);
+
   const [img, setImg] = useState(default_user_img);
+  const [username, setUsername] = useState(null);
   const { completeProfile, setCompleteProfile } = useContext(
     completeprofileContext
   );
@@ -20,6 +22,7 @@ const MyMenu = () => {
     setImg(
       completeProfile ? `${baseURL}${user.profile.image}` : default_user_img
     );
+    setUsername(completeProfile ? user.user.username : null);
   }, [user]);
 
   const handleLogout = () => {
@@ -32,10 +35,14 @@ const MyMenu = () => {
     });
   };
 
+  const home = () => {
+    // window.location.reload();
+  };
+
   return (
     <div>
       <Menu color="blue" inverted>
-        <Menu.Item as={Link} to="/">
+        <Menu.Item as={Link} to="/" onClick={home}>
           <span>
             <h3>
               <Icon name="home" />
@@ -44,21 +51,15 @@ const MyMenu = () => {
           </span>
         </Menu.Item>
         <Menu.Menu position="right">
-          <Responsive minWidth={Responsive.onlyTablet.minWidth}>
-            <Menu.Item>
-              <Input
-                placeholder="Search..."
-                icon={{ name: "search", circular: true, link: true }}
-              />
-            </Menu.Item>
-          </Responsive>
           {auth ? (
             <>
               <Menu.Item as={Link} to="/create">
                 <Icon name="add circle" />
+                <span>Create</span>
               </Menu.Item>
               <Menu.Item as={Link} to="/profile">
                 <Image src={img} avatar />
+                <span>{username}</span>
               </Menu.Item>
               <Menu.Item icon="sign-out alternate" onClick={handleLogout} />
             </>
@@ -70,12 +71,6 @@ const MyMenu = () => {
           )}
         </Menu.Menu>
       </Menu>
-
-      <Responsive {...Responsive.onlyMobile}>
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <Input icon="search" placeholder="Search..." />
-        </div>
-      </Responsive>
     </div>
   );
 };

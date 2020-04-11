@@ -89,6 +89,7 @@ class BookSerializer(serializers.ModelSerializer):
         name = self.initial_data.get('name')
         author = self.initial_data.get('author')
         price = self.initial_data.get('price')
+        # print(self.initial_data)
 
         if name != "" and author != "" and price != "":
             return data

@@ -19,7 +19,8 @@ class Book(models.Model):
     name = models.CharField(max_length=30, blank=True, null=True)
     author = models.CharField(max_length=30, blank=True, null=True)
     price = models.PositiveIntegerField()
-    timestamp = models.DateTimeField(auto_now_add=True, editable=False)
+    timestamp = models.DateField(auto_now_add=True, auto_now=False)
+    time = models.DateTimeField(auto_now=True)
     is_sold = models.BooleanField(default=False)
     image = models.ImageField(upload_to='books_img',
                               blank=True, default="books_img/default.png")

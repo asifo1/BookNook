@@ -47,7 +47,7 @@ const Profile = () => {
   };
 
   const onClickSave = () => {
-    console.log(user);
+    console.log(name, email, mobile, city, password, image);
   };
 
   return (
