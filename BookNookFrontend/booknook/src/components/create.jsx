@@ -56,7 +56,7 @@ const Create = () => {
     form_data.append("name", bookName);
     form_data.append("author", authorName);
     form_data.append("price", price);
-    form_data.append("user", 1);
+    form_data.append("user", 41);
 
     const token = Cookies.get("AuthToken");
 
@@ -150,18 +150,15 @@ const Create = () => {
                     />
                   </Form.Group>
 
-                  {loading ? (
-                    <Button color="blue" basic fluid content="Create" loading />
-                  ) : (
-                    <Button
-                      type="submit"
-                      color="blue"
-                      basic
-                      fluid
-                      onClick={onClickCreate}
-                      content="Create"
-                    />
-                  )}
+                  <Button
+                    type="submit"
+                    color="blue"
+                    basic
+                    fluid
+                    loading={loading}
+                    onClick={onClickCreate}
+                    content="Create"
+                  />
                 </Form>
               </Segment>
             </Grid.Column>

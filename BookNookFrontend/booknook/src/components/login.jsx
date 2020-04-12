@@ -50,6 +50,7 @@ const LoginForm = () => {
           setError(false);
           setAuth(true);
           Cookies.set("AuthToken", res.data.token, { expires: 7 });
+
           if (res.data.is_profile === "true") {
             const value = res.data.is_profile === "true" ? true : false;
             setCompleteProfile(value);
@@ -71,6 +72,7 @@ const LoginForm = () => {
       .then((res) => {
         if (res.status === 200 && res.data.is_valid === "true") {
           setAuth(true);
+
           const value = res.data.is_profile === "true" ? true : false;
           setCompleteProfile(value);
           setUser({ user: res.data.user, profile: res.data.profile });

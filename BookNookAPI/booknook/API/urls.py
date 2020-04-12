@@ -10,7 +10,8 @@ from .views import (
     DeleteBook,
     CreateBook,
     Search,
-    UserValidation
+    UserValidation,
+    MyBookList
 )
 
 urlpatterns = [
@@ -25,5 +26,6 @@ urlpatterns = [
     path('create/', CreateBook.as_view()),
     path('search/', Search.as_view()),
     path('isuser/', UserValidation.as_view()),
+    path('mybooks/', MyBookList.as_view())
 
 ]

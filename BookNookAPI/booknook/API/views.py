@@ -85,8 +85,10 @@ class ProfileView(APIView):
 
 class ProfileUpdate(APIView):
     permission_classes = [IsAuthenticated]
+    parser_classes = (FormParser, MultiPartParser)
 
     def post(self, request, *args, **kwargs):
+        time.sleep(2)
         serializer = ProfileUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         name = serializer.data.get('name')
@@ -94,24 +96,29 @@ class ProfileUpdate(APIView):
         password = serializer.data.get('password')
         mobile = serializer.data.get('mobile')
         city = serializer.data.get('city')
+        image = request.data.get('image')  # need to validate image or not
+        print(image)
 
         try:
             validate_email(email)
         except:
-            return Response("Enter Valid Email")
+            return Response("Enter Valid Email", status=status.HTTP_400_BAD_REQUEST)
 
         the_user = User.objects.filter(email=email)
         if the_user.count() >= 1:
-            return Response("Email Already Used")
+            return Response("Email Already Used", status=status.HTTP_400_BAD_REQUEST)
 
-        if len(password) <= 7:
-            return Response("Password length must be 8!")
+        # if len(password) <= 7:
+        #     return Response("Password length must be 8!")
 
         try:
             profile = Profile.objects.get(user=request.user)
             profile.name = name
             profile.mobile = mobile
             profile.city = city
+            if image != None:
+                print(image)
+                profile.image = image
         except:
             profile = Profile(user=request.user, name=name,
                               mobile=mobile, city=city)
@@ -125,7 +132,7 @@ class ProfileUpdate(APIView):
 
         user.save()
 
-        return Response(ProfileSerializer(profile).data)
+        return Response(ProfileSerializer(profile).data, status=status.HTTP_200_OK)
 
 
 class DeleteId(APIView):
@@ -152,18 +159,17 @@ class CreateBook(APIView):
         author = serializer.data.get('author')
         price = serializer.data.get('price')
         image = request.data.get('image')
-        print(image)
 
-        for i in range(100):
-            book = Book(
-                user=request.user,
-                name=name+str(i),
-                author=author,
-                price=price,
-                image=image
-            )
+        # for i in range(30):
+        book = Book(
+            user=request.user,
+            name=name,
+            author=author,
+            price=price,
+            image=image
+        )
 
-            book.save()
+        book.save()
         return Response(BookSerializer(book).data, status=status.HTTP_201_CREATED)
 
 
@@ -255,3 +261,15 @@ class UserValidation(APIView):
             'is_profile': is_profile,
             'profile': profile,
         }, status=status.HTTP_200_OK)
+
+
+class MyBookList(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = Book.objects.all().order_by('-time')
+    serializer_class = BookSerializer
+    pagination_class = LimitOffsetPagination
+
+    def get_queryset(self):
+        queryset = Book.objects.filter(
+            user=self.request.user).order_by('-time')
+        return queryset
