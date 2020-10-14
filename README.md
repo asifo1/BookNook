@@ -2,7 +2,7 @@
 
 Online second hand book shop using React and Django Rest Framework.
 
-##Features
+## Features
 
 1. Create Profile
 2. Edit Profile
